@@ -1,15 +1,24 @@
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler
-import torch
-from torch.utils.data import DataLoader, TensorDataset
+import torch.nn as nn
 
-df = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_0000.csv')
-scaler = StandardScaler()
-data = scaler.fit_transform(df.values)
+class Autoencoder(nn.Module):
+    def __init__(self, input_dim):
+        super(Autoencoder, self).__init__()
+        # Warstwa kodująca
+        self.encoder = nn.Sequential(
+            nn.Linear(input_dim, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU()
+        )
+        # Warstwa dekodująca
+        self.decoder = nn.Sequential(
+            nn.Linear(32, 64),
+            nn.ReLU(),
+            nn.Linear(64, input_dim)
+        )
 
-data_tensor = torch.tensor(data, dtype=torch.float32)
-dataset = TensorDataset(data_tensor)
-dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+    def forward(self, x):
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+        return decoded
 
-print(data_tensor.shape)

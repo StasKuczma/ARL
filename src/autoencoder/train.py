@@ -10,6 +10,8 @@ from autoencoder import Autoencoder
 from matplotlib import pyplot as plt
 import torch.nn as nn
 import torch.optim as optim
+import json
+
 
 df = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_0000.csv')
 scaler = StandardScaler()
@@ -52,39 +54,48 @@ for epoch in range(num_epochs):
     
     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {total_loss/len(dataloader)}')
 
+torch.save(model.state_dict(), './autoencoder_model.pth')
 
-
-
+# torch.save(model.state_dict(), './autoencoder_model.pth')
+np.save('./scaler_params.npy', [scaler.mean_, scaler.scale_])
+# print('Model and scaler parameters saved.')
+print('Model saved to autoencoder_model.pth')
 # Testowanie modelu
 
-df_test = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_1100.csv')
-A_propeler_test = df_test[['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']]
+# df_test = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_0022.csv')
+# A_propeler_test = df_test[['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']]
 
-data_test = scaler.transform(A_propeler_test.values)  
-data_test_tensor = torch.tensor(data_test, dtype=torch.float32)
+# data_test = scaler.transform(A_propeler_test.values)  
+# data_test_tensor = torch.tensor(data_test, dtype=torch.float32)
 
-model.eval() 
-with torch.no_grad():
-    reconstruction = model(data_test_tensor)
-    reconstruction_error = nn.MSELoss(reduction='none')(reconstruction, data_test_tensor).mean(dim=1).numpy()
+# model.eval() 
+# with torch.no_grad():
+#     reconstruction = model(data_test_tensor)
+#     reconstruction_error = nn.MSELoss(reduction='none')(reconstruction, data_test_tensor).mean(dim=1).numpy()
 
 with torch.no_grad():
     training_reconstruction = model(data_tensor)
     training_reconstruction_error = nn.MSELoss(reduction='none')(training_reconstruction, data_tensor).mean(dim=1).numpy()
 threshold = np.percentile(training_reconstruction_error, 95)  
 
-# Wykrycie anomalii na danych testowych
-anomalies = reconstruction_error > threshold
 
-damage = 0
-no_damage = 0
+with open('threshold.json', 'w') as f:
+    json.dump({'threshold': threshold}, f)
 
-for i, anomaly in enumerate(anomalies):
-    if anomaly:
-        damage += 1
-    else:
-        no_damage += 1
-if damage > no_damage:
-    print("Damage detected")
-else:
-    print("No damage detected")
+# print(f'Threshold: {threshold}')
+
+# # Wykrycie anomalii na danych testowych
+# anomalies = reconstruction_error > threshold
+
+# damage = 0
+# no_damage = 0
+
+# for i, anomaly in enumerate(anomalies):
+#     if anomaly:
+#         damage += 1
+#     else:
+#         no_damage += 1
+# if damage > no_damage:
+#     print("Damage detected")
+# else:
+#     print("No damage detected")

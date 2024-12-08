@@ -14,11 +14,21 @@ import json
 
 
 df = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_0000.csv')
+df2 = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_0001.csv')
 scaler = StandardScaler()
 data = scaler.fit_transform(df.values)
 
 # Dane tylko z smigla A
 A_propeler=df[['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']]
+A2_propeler=df2[['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']]
+
+A_propeler = pd.concat([A_propeler, A2_propeler], axis=0)
+
+# print(A_propeler)
+
+
+
+
 data = scaler.fit_transform(A_propeler.values)
 
 

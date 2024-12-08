@@ -19,9 +19,9 @@ scaler_params = np.load('./scaler_params.npy', allow_pickle=True)
 scaler_mean, scaler_scale = scaler_params
 scaler = lambda x: (x - scaler_mean) / scaler_scale
 
-df_test = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_0000.csv')
-# A_propeler_test = df_test[['C_aX', 'C_aY', 'C_aZ', 'C_gX', 'C_gY', 'C_gZ']]
-A_propeler_test = df_test[['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']]
+df_test = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_0022.csv')
+A_propeler_test = df_test[['C_aX', 'C_aY', 'C_aZ', 'C_gX', 'C_gY', 'C_gZ']]
+# A_propeler_test = df_test[['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']]
 
 data_test = scaler(A_propeler_test.values)
 data_test_tensor = torch.tensor(data_test, dtype=torch.float32)

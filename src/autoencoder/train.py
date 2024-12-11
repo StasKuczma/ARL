@@ -24,7 +24,7 @@ A2_propeler=df2[['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']]
 
 A_propeler = pd.concat([A_propeler, A2_propeler], axis=0)
 
-# print(A_propeler)
+print(A_propeler)
 
 
 

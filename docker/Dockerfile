@@ -13,7 +13,8 @@ RUN pip install --no-cache-dir \
     pandas \
     numpy \
     scikit-learn \
-    matplotlib 
+    matplotlib \ 
+    python3-tk
 
 WORKDIR /workspace
 

@@ -11,20 +11,26 @@ from matplotlib import pyplot as plt
 import torch.nn as nn
 import torch.optim as optim
 import json
+import matplotlib.pyplot as plt
 
 
-df = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_0000.csv')
+
+df = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/train/Bebop2_16g_1kdps_normalized_0000.csv')
+df2 = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/train/Bebop2_16g_1kdps_normalized_1102.csv')
 scaler = StandardScaler()
 data = scaler.fit_transform(df.values)
 
 # Dane tylko z smigla A
-A_propeler=df[['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']]
-data = scaler.fit_transform(A_propeler.values)
+A_propeler=df[['C_aX', 'C_aY', 'C_aZ', 'C_gX', 'C_gY', 'C_gZ']]
+A2_propeler=df2[['C_aX', 'C_aY', 'C_aZ', 'C_gX', 'C_gY', 'C_gZ']]
 
+A_propeler = pd.concat([A_propeler], axis=0)
+
+data = scaler.fit_transform(A_propeler.values)
 
 data_tensor = torch.tensor(data, dtype=torch.float32)
 dataset = TensorDataset(data_tensor)
-dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
 
 input_dim = data.shape[1]
 model = Autoencoder(input_dim)
@@ -32,6 +38,8 @@ model = Autoencoder(input_dim)
 # Funkcja straty i optymalizator
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
+
+loss_values = []
 
 # Trening
 num_epochs = 10
@@ -51,51 +59,32 @@ for epoch in range(num_epochs):
         optimizer.step()
 
         total_loss += loss.item()
+
+        
     
     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {total_loss/len(dataloader)}')
+    loss_values.append(total_loss/len(dataloader))
 
-torch.save(model.state_dict(), './autoencoder_model.pth')
+torch.save(model.state_dict(), './models/C_propeller/autoencoder_model.pth')
 
-# torch.save(model.state_dict(), './autoencoder_model.pth')
-np.save('./scaler_params.npy', [scaler.mean_, scaler.scale_])
-# print('Model and scaler parameters saved.')
+np.save('./models/C_propeller/scaler_params.npy', [scaler.mean_, scaler.scale_])
+
 print('Model saved to autoencoder_model.pth')
-# Testowanie modelu
-
-# df_test = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/Bebop2_16g_1kdps_normalized_0022.csv')
-# A_propeler_test = df_test[['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']]
-
-# data_test = scaler.transform(A_propeler_test.values)  
-# data_test_tensor = torch.tensor(data_test, dtype=torch.float32)
-
-# model.eval() 
-# with torch.no_grad():
-#     reconstruction = model(data_test_tensor)
-#     reconstruction_error = nn.MSELoss(reduction='none')(reconstruction, data_test_tensor).mean(dim=1).numpy()
 
 with torch.no_grad():
     training_reconstruction = model(data_tensor)
     training_reconstruction_error = nn.MSELoss(reduction='none')(training_reconstruction, data_tensor).mean(dim=1).numpy()
-threshold = np.percentile(training_reconstruction_error, 95)  
+threshold = np.percentile(training_reconstruction_error, 85)  
 
 
-with open('threshold.json', 'w') as f:
+with open('./models/C_propeller/threshold.json', 'w') as f:
     json.dump({'threshold': threshold}, f)
 
-# print(f'Threshold: {threshold}')
+print(threshold)
 
-# # Wykrycie anomalii na danych testowych
-# anomalies = reconstruction_error > threshold
 
-# damage = 0
-# no_damage = 0
-
-# for i, anomaly in enumerate(anomalies):
-#     if anomaly:
-#         damage += 1
-#     else:
-#         no_damage += 1
-# if damage > no_damage:
-#     print("Damage detected")
-# else:
-#     print("No damage detected")
+plt.plot(loss_values)
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Training Loss')
+plt.show()

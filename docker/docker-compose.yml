@@ -3,7 +3,7 @@ services:
   arl_pytorch:
     container_name: arl_pytorch
     image: arl:latest
-    # runtime: nvidia
+    runtime: nvidia
     environment:
       QT_X11_NO_MITSHM: '1'
       NVIDIA_VISIBLE_DEVICES: all

@@ -5,15 +5,13 @@
 ### Co robić?
 Bierzemy te dane i jakimś algorytemem trzeba ustalić które było uszkodzone, które nie.
 
-
-UPDATE 2 Grudzień
+UPDATE 8 stycznia
 
 [x] Autoencoder <br/>
 [x] Isolation Forest
-<br/>Chat GPT proponuje <br/>
 [ ] Transformacja sygnałów + FFT <br/> 
 [ ] LSTM Autoencoder <br/>
-[ ] Dynamiczne klastry <br/>
+[x] K means <br/>
 
 
 ### Docker

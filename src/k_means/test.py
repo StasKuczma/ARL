@@ -6,12 +6,12 @@ import os
 import json
 
 # Wczytanie zapisanego modelu i parametrów
-kmeans_centers = np.load('./models/C_propeller/kmeans_model.npy')
-scaler_params = np.load('./models/C_propeller/scaler_params.npy', allow_pickle=True)
+kmeans_centers = np.load('./models/A_propeller/kmeans_model.npy')
+scaler_params = np.load('./models/A_propeller/scaler_params.npy', allow_pickle=True)
 scaler_mean, scaler_scale = scaler_params
 scaler = lambda x: (x - scaler_mean) / scaler_scale
 
-with open('models/C_propeller/threshold.json', 'r') as f:
+with open('models/A_propeller/threshold.json', 'r') as f:
     threshold = json.load(f)['threshold']
 
 # Funkcja obliczająca odległość do najbliższego centroidu

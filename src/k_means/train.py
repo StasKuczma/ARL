@@ -5,22 +5,31 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 import os
 import json
+import glob
 
 # Tworzenie katalogu na modele
-save_dir = './models/C_propeller'
+save_dir = './models/A_propeller'
 os.makedirs(save_dir, exist_ok=True)
 
 # Wczytanie danych treningowych (2 przeloty)
-df1 = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/train/Bebop2_16g_1kdps_normalized_0000.csv')
-df2 = pd.read_csv('/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/train/Bebop2_16g_1kdps_normalized_0122.csv')
-
-# Wybór danych dla śmigła (przykład dla śmigła C)
+file_pattern = '/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/train/Bebop2_16g_1kdps_normalized_*.csv'
 cols = ['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']
-propeller_data1 = df1[cols]
-propeller_data2 = df2[cols]
 
-# Połączenie danych treningowych
-training_data = pd.concat([propeller_data1, propeller_data2], axis=0)
+def load_data(data, cols):
+    
+
+    files = glob.glob(data)
+    data_list = []
+    
+    for file in files:
+        data = pd.read_csv(file)
+        propeller_data = data[cols]
+
+        data_list.append(propeller_data)
+
+    return pd.concat(data_list, axis=0)
+
+training_data=load_data(file_pattern, cols)
 
 # Skalowanie danych
 scaler = StandardScaler()

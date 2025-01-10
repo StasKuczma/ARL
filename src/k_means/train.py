@@ -6,18 +6,26 @@ from sklearn.cluster import KMeans
 import os
 import json
 import glob
+import argparse
 
-# Tworzenie katalogu na modele
-save_dir = './models/A_propeller'
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--propeller', type=str, required=True, help='Model to test')
+args = parser.parse_args()
+
+
+save_dir = os.path.join('./models/',args.propeller)
+
+print(save_dir)
+
 os.makedirs(save_dir, exist_ok=True)
 
 # Wczytanie danych treningowych (2 przeloty)
 file_pattern = '/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/train/Bebop2_16g_1kdps_normalized_*.csv'
-cols = ['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']
+cols = [args.propeller+'_aX', args.propeller+'_aY',args.propeller+'_aZ',args.propeller+'_gX',args.propeller+'_gY',args.propeller+'_gZ']
 
 def load_data(data, cols):
     
-
     files = glob.glob(data)
     data_list = []
     
@@ -31,12 +39,14 @@ def load_data(data, cols):
 
 training_data=load_data(file_pattern, cols)
 
+print(training_data)
+
 # Skalowanie danych
 scaler = StandardScaler()
 data_scaled = scaler.fit_transform(training_data)
 
 # Trenowanie modelu K-means
-n_clusters = 2  # Możesz dostosować liczbę klastrów
+n_clusters = 3  # Możesz dostosować liczbę klastrów
 kmeans = KMeans(n_clusters=n_clusters, random_state=42)
 kmeans.fit(data_scaled)
 
@@ -48,8 +58,10 @@ for point in data_scaled:
     distances.append(min_distance)
 
 distances = np.array(distances)
+# train_distances = calculate_distances(train_scaled, kmeans.cluster_centers_)
 
-threshold = distances.mean() + 1.5 * distances.std()
+# threshold = distances.mean() + 1.5 * distances.std()
+threshold = np.percentile(distances, 90)  
 
 # Zapisywanie modelu i parametrów
 np.save(os.path.join(save_dir, 'kmeans_model.npy'), kmeans.cluster_centers_)

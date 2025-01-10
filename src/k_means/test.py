@@ -1,18 +1,28 @@
-# test_kmeans.py
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import json
+import argparse
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--propeller', type=str, default='A', help='Model to test')
+args = parser.parse_args()
+
 
 # Wczytanie zapisanego modelu i parametrów
-kmeans_centers = np.load('./models/A_propeller/kmeans_model.npy')
-scaler_params = np.load('./models/A_propeller/scaler_params.npy', allow_pickle=True)
+kmeans_centers = np.load('./models/'+args.propeller+'/kmeans_model.npy')
+scaler_params = np.load('./models/'+args.propeller+'/scaler_params.npy', allow_pickle=True)
 scaler_mean, scaler_scale = scaler_params
 scaler = lambda x: (x - scaler_mean) / scaler_scale
 
-with open('models/A_propeller/threshold.json', 'r') as f:
+with open('./models/'+args.propeller+'/threshold.json', 'r') as f:
     threshold = json.load(f)['threshold']
+
+
+print('./models/'+args.propeller+'/kmeans_model.npy')
+print('./models/'+args.propeller+'/scaler_params.npy')
 
 # Funkcja obliczająca odległość do najbliższego centroidu
 def compute_distances(data, centers):
@@ -35,12 +45,17 @@ FN = 0
 test_folder = '/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/test/'
 test_files = [f for f in os.listdir(test_folder) if f.endswith('.csv')]
 
+
+place_in_row=0
+
+place_in_row = {'A': 0, 'B': 1, 'C': 2, 'D': 3}[args.propeller]
+
 for test_file in test_files:
     file_path = os.path.join(test_folder, test_file)
     df_test = pd.read_csv(file_path)
     
     # Wybór danych dla śmigła
-    cols = ['A_aX', 'A_aY', 'A_aZ', 'A_gX', 'A_gY', 'A_gZ']
+    cols = [args.propeller+'_aX', args.propeller+'_aY',args.propeller+'_aZ',args.propeller+'_gX',args.propeller+'_gY',args.propeller+'_gZ']
     propeller_test = df_test[cols]
     
     # Skalowanie danych testowych
@@ -51,20 +66,19 @@ for test_file in test_files:
     
     # Określenie anomalii
     anomalies = distances > threshold
-
-    # print(f'Anomalie w pliku {test_file}: {np.sum(anomalies)}')
-    # print(f'Odległości: {len(distances)}')
     damage_count = np.sum(anomalies)
 
-    # print(f'Anomalie w pliku : {damage_count}')
     normal_count = len(anomalies) - damage_count
-    # print(f'normal count: {normal_count}')
 
     # Określenie rzeczywistego stanu na podstawie nazwy pliku
-    true_state = test_file.split('_')[-1].split('.')[0][0]  # Dla śmigła C
+    true_state = test_file.split('_')[-1].split('.')[0][place_in_row]  
     
-    # Klasyfikacja
-    is_damaged = damage_count > normal_count
+    # Klasyfikacja zdecydowana większość uszkodzona
+    threshold_percentage = 0.25
+
+    print(f'demage count: {damage_count}')
+    print(f'in smaller: {(len(distances) * threshold_percentage)  }')
+    is_damaged = damage_count > (len(distances) * threshold_percentage)   
     
     if is_damaged:
         print(f"Damage detected in {test_file}")
@@ -83,38 +97,36 @@ for test_file in test_files:
             incorrect_detection += 1
             FN += 1
 
-# Wyświetlenie wyników
-print('\nWyniki klasyfikacji:')
-print(f'Poprawne detekcje: {correct_detection}')
-print(f'Niepoprawne detekcje: {incorrect_detection}')
-print(f'Dokładność: {correct_detection / (correct_detection + incorrect_detection):.4f}')
+print('Correct detection:', correct_detection)
+print('Incorrect detection:', incorrect_detection)
 
-# # Dodatkowe metryki
-# precision = TP / (TP + FP) if (TP + FP) > 0 else 0
-# recall = TP / (TP + FN) if (TP + FN) > 0 else 0
-# f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+print('Accuracy:', correct_detection / (correct_detection + incorrect_detection))
 
-# print('\nDodatkowe metryki:')
-# print(f'Precision: {precision:.4f}')
-# print(f'Recall: {recall:.4f}')
-# print(f'F1 Score: {f1_score:.4f}')
+print('True Positives:', TP)
+print('True Negatives:', TN)
+print('False Positives:', FP)
+print('False Negatives:', FN)
 
-# # Wizualizacja macierzy pomyłek
-# confusion_matrix = np.array([[TP, FN], [FP, TN]])
-# labels = ['Uszkodzenie', 'Brak uszkodzenia']
+confusion_matrix = np.array([[TP, FN],
+                             [FP, TN]])
 
-# plt.figure(figsize=(8, 6))
-# plt.matshow(confusion_matrix, cmap=plt.cm.Blues, fignum=1)
-# plt.colorbar()
+labels = ['Damage', 'No Damage']
 
-# plt.xticks(range(2), labels)
-# plt.yticks(range(2), labels)
-# plt.xlabel('Predykcja')
-# plt.ylabel('Rzeczywista wartość')
+fig, ax = plt.subplots()
+cax = ax.matshow(confusion_matrix, cmap=plt.cm.Blues)
 
-# for i in range(2):
-#     for j in range(2):
-#         plt.text(j, i, str(confusion_matrix[i, j]), 
-#                 ha='center', va='center')
+plt.colorbar(cax)
 
-# plt.show()
+ax.set_xticklabels([''] + labels)
+ax.set_yticklabels([''] + labels)
+
+plt.xlabel('Predykcja')
+plt.ylabel('Rzetywista wartość')
+
+for (i, j), val in np.ndenumerate(confusion_matrix):
+    ax.text(j, i, f'{val}', ha='center', va='center', color='black')
+
+plt.savefig('./confusion_matrix'+args.propeller+'.png')
+
+plt.close()
+

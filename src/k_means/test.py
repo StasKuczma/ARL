@@ -45,12 +45,18 @@ FN = 0
 test_folder = '/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/test/'
 test_files = [f for f in os.listdir(test_folder) if f.endswith('.csv')]
 
+skip_path = '/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/train'+args.propeller+'/'
+
+
 
 place_in_row=0
 
 place_in_row = {'A': 0, 'B': 1, 'C': 2, 'D': 3}[args.propeller]
 
 for test_file in test_files:
+
+    if test_file in os.listdir(skip_path):
+        continue
     file_path = os.path.join(test_folder, test_file)
     df_test = pd.read_csv(file_path)
     
@@ -123,10 +129,13 @@ ax.set_yticklabels([''] + labels)
 plt.xlabel('Predykcja')
 plt.ylabel('Rzetywista wartość')
 
+plt.title('Accuracy:'+str(correct_detection / (correct_detection + incorrect_detection)))
+
+
 for (i, j), val in np.ndenumerate(confusion_matrix):
     ax.text(j, i, f'{val}', ha='center', va='center', color='black')
 
-plt.savefig('./confusion_matrix'+args.propeller+'.png')
+plt.savefig('./results/confusion_matrix'+args.propeller+'.png')
 
 plt.close()
 

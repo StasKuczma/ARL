@@ -21,7 +21,7 @@ print(save_dir)
 os.makedirs(save_dir, exist_ok=True)
 
 # Wczytanie danych treningowych (2 przeloty)
-file_pattern = '/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/train/Bebop2_16g_1kdps_normalized_*.csv'
+file_pattern = '/workspace/UAV_measurement_data/Parrot_Bebop_2/Normalized_data/train'+args.propeller+'/Bebop2_16g_1kdps_normalized_*.csv'
 cols = [args.propeller+'_aX', args.propeller+'_aY',args.propeller+'_aZ',args.propeller+'_gX',args.propeller+'_gY',args.propeller+'_gZ']
 
 def load_data(data, cols):

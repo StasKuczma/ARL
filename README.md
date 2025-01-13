@@ -5,7 +5,7 @@
 ### Co robić?
 Bierzemy te dane i jakimś algorytemem trzeba ustalić które było uszkodzone, które nie.
 
-UPDATE 8 stycznia
+UPDATE 13 stycznia
 
 [x] Autoencoder <br/>
 [x] Isolation Forest

@@ -10,7 +10,7 @@ UPDATE 8 stycznia
 [x] Autoencoder <br/>
 [x] Isolation Forest
 [ ] Transformacja sygnałów + FFT <br/> 
-[ ] LSTM Autoencoder <br/>
+[x] LSTM Autoencoder <br/>
 [x] K means <br/>
 
 

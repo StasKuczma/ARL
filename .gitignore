@@ -1,2 +1,5 @@
 UAV_measurement_data/
 src/autoencoder/__pycache__/
+.DS_Store
+*.pth
+src/*/models/*

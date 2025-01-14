@@ -85,9 +85,11 @@ for csv_file in csv_files:
     parts = filename_without_extension.split('_')
     last_part = parts[-1]
     desired_character = last_part[place_in_row]
+
+    print(f'damage: {damage}, no_damage: {no_damage}, desired_character: {desired_character}')
     
     # Classify and update metrics
-    if damage > no_damage * 1.2:  # Using 20% threshold
+    if damage > no_damage * 1.2:  # Using 320% threshold
         print(f"Damage detected in {csv_file}")
         if desired_character in ['1', '2']:
             correct_detection += 1

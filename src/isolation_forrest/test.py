@@ -72,7 +72,9 @@ for csv_file in csv_files:
     last_part = parts[-1]
     desired_character = last_part[place_in_row]
 
-    if damage > no_damage * 1.2:  # Próg 20%
+    print(f"Damage: {damage}, No damage: {no_damage}")
+
+    if damage > no_damage * 2:  # Próg 20%
         print(f"Damage detected in {csv_file}")
 
         if desired_character == '1' or desired_character == '2':

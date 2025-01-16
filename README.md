@@ -8,8 +8,7 @@ Bierzemy te dane i jakimś algorytemem trzeba ustalić które było uszkodzone, 
 UPDATE 13 stycznia
 
 [x] Autoencoder <br/>
-[x] Isolation Forest
-[ ] Transformacja sygnałów + FFT <br/> 
+[x] Isolation Forest  <br/>
 [x] LSTM Autoencoder <br/>
 [x] K means <br/>
 

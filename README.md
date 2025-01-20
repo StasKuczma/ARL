@@ -10,7 +10,7 @@ UPDATE 13 stycznia
 [x] Autoencoder <br/>
 [x] Isolation Forest  <br/>
 [x] LSTM Autoencoder <br/>
-[x] K means <br/>
+[x] K Means <br/>
 
 
 ### Docker
